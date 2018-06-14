@@ -1,14 +1,15 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Graph {
     int vertices;
-    int dist[];
     int start;
+    List<Integer> dist = new CopyOnWriteArrayList<>();
     List<Edge> edges = new ArrayList<>();
 
     // A class to represent a weighted edge in graph
@@ -23,20 +24,28 @@ public class Graph {
     }
 
     Graph(String filename) {
+
         this.load(filename);
+
+        // init dist
+        for (int i = 0; i <= vertices; ++i) {
+            dist.add(Integer.MAX_VALUE);
+        }
+        dist.set(start, 0);
+
     }
 
-    synchronized void updateDistance(Integer index, Integer distance) {
-        dist[index] = distance;
+    void setDist(int index, int value) {
+        dist.set(index, value);
     }
 
-    synchronized int getDistance(Integer index) {
-        return dist[index];
+    int getDist(int index) {
+        return dist.get(index);
     }
 
     void printResult() {
         for (int j = 1; j <= vertices; ++j) {
-            System.out.println(j + " -> " + dist[j]);
+            System.out.println(j + " -> " + dist.get(j));
         }
     }
 
@@ -50,7 +59,6 @@ public class Graph {
             Integer[] firstLine = processLine(line);
             vertices = firstLine[0];
             start = firstLine[2];
-            dist = new int[vertices + 1];
 
             for (int i = 0; i < firstLine[1]; i++) {
                 line = br.readLine();
